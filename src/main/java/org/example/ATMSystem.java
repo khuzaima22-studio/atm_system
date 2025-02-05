@@ -16,7 +16,7 @@ public class ATMSystem {
     public boolean isRequiresMaintenance() {
         return requiresMaintenance;
     }
-
+    // the entry point of the program
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         // Initialize ATM system, Bank, Customer, and ATM Technician
@@ -73,7 +73,7 @@ public class ATMSystem {
     public void showCustomerMenu(Customer customer, Scanner scanner) {
         boolean exit = false;
         while (!exit) {
-            System.out.println("\nCustomer Menu:");
+            System.out.println("\nCustomer Menu:");    // escape sequence(represents a new line)
             System.out.println("1. Check Balance");
             System.out.println("2. Withdraw Cash");
             System.out.println("3. Deposit Cash");
