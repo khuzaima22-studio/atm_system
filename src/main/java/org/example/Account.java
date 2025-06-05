@@ -18,7 +18,7 @@ public class Account {
     public void withdraw(double amount) {
         if (amount > balance) {
             System.out.println("Insufficient balance!");
-            return;  // No change to balance if insufficient funds
+            return;  // No change to balance if insufficient fund,
         }
         balance -= amount; // Update the balance only if withdrawal is successful
     }

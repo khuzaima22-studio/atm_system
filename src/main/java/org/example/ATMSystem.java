@@ -6,17 +6,23 @@ import java.util.Scanner;
 public class ATMSystem {
     private double atmCashBalance;
     private Bank bank;
-    private int transactionCount;
-    private static final int TRANSACTION_LIMIT = 5;
-    private boolean requiresMaintenance;
+    private int InkQuantityUsed;
+    private int PaperQuantityUsed;
+    private static final int InkQuantity_LIMIT = 20;
+    private static final int PaperQuantity_LIMIT = 6;
+    private boolean requiresInkMaintenance;
+    private boolean requiresPaperMaintenance;
 
     public double getAtmCashBalance() {
         return atmCashBalance;
     }
-    public boolean isRequiresMaintenance() {
-        return requiresMaintenance;
+    public boolean isrequiresInkMaintenance() {
+        return requiresInkMaintenance;
     }
-    // the entry point of the program
+    public boolean isrequiresPaperMaintenance() {
+        return requiresPaperMaintenance;
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         // Initialize ATM system, Bank, Customer, and ATM Technician
@@ -36,15 +42,23 @@ public class ATMSystem {
             atmSystem.showTechnicianMenu(atmTechnician, scanner);
         } else if (enteredPin.equals(customer1.getPin())) {
             System.out.println("Pin validated successfully as Customer 1!");
-            if (atmSystem.requiresMaintenance) {
-                System.out.println("Maintenance required! Technician must refill ink and paper before proceeding.");
+            if (atmSystem.requiresInkMaintenance) {
+                System.out.println("Maintenance required! Technician must refill ink before proceeding.");
+                atmSystem.showTechnicianMenu(atmTechnician, scanner);
+            }
+            if (atmSystem.requiresPaperMaintenance) {
+                System.out.println("Maintenance required! Technician must refill paper before proceeding.");
                 atmSystem.showTechnicianMenu(atmTechnician, scanner);
             }
             atmSystem.showCustomerMenu(customer1, scanner);
         } else if (enteredPin.equals(customer2.getPin())) {
             System.out.println("Pin validated successfully as Customer 2!");
-            if (atmSystem.requiresMaintenance) {
-                System.out.println("Maintenance required! Technician must refill ink and paper before proceeding.");
+            if (atmSystem.requiresInkMaintenance) {
+                System.out.println("Maintenance required! Technician must refill ink before proceeding.");
+                atmSystem.showTechnicianMenu(atmTechnician, scanner);
+            }
+            if (atmSystem.requiresPaperMaintenance) {
+                System.out.println("Maintenance required! Technician must refill paper before proceeding.");
                 atmSystem.showTechnicianMenu(atmTechnician, scanner);
             }
             atmSystem.showCustomerMenu(customer2, scanner);
@@ -58,8 +72,10 @@ public class ATMSystem {
     public ATMSystem() {
         this.atmCashBalance = 25000.0;
         this.bank = new Bank("MyBank");
-        this.transactionCount = 0;
-        this.requiresMaintenance = false;
+        this.PaperQuantityUsed = 0;
+        this.InkQuantityUsed = 0;
+        this.requiresInkMaintenance = false;
+        this.requiresPaperMaintenance = false;
     }
 
     public void showWelcomeScreen() {
@@ -73,7 +89,7 @@ public class ATMSystem {
     public void showCustomerMenu(Customer customer, Scanner scanner) {
         boolean exit = false;
         while (!exit) {
-            System.out.println("\nCustomer Menu:");    // escape sequence(represents a new line)
+            System.out.println("\nCustomer Menu:");
             System.out.println("1. Check Balance");
             System.out.println("2. Withdraw Cash");
             System.out.println("3. Deposit Cash");
@@ -105,9 +121,14 @@ public class ATMSystem {
             }
 
             // Check if maintenance is required
-            if (transactionCount >= TRANSACTION_LIMIT) {
-                requiresMaintenance = true;
-                System.out.println("Maintenance required! Technician must refill ink and paper before further transactions.");
+            if (InkQuantityUsed >= InkQuantity_LIMIT) {
+                requiresInkMaintenance = true;
+                System.out.println("Maintenance required! Technician must refill Ink before further transactions.");
+                break;
+            }
+            if (PaperQuantityUsed >= PaperQuantity_LIMIT) {
+                requiresPaperMaintenance = true;
+                System.out.println("Maintenance required! Technician must refill Paper before further transactions.");
                 break;
             }
         }
@@ -117,25 +138,26 @@ public class ATMSystem {
         boolean technicianExit = false;
         while (!technicianExit) {
             System.out.println("\nATM Technician Menu");
-            System.out.println("1. Replenish Cash");
-            System.out.println("2. Refill Ink/Paper");
+            System.out.println("1. Refill Ink");
+            System.out.println("2. Refill Paper");
             System.out.println("3. Upgrade System");
             System.out.println("4. Perform Diagnostics");
-            System.out.println("5. Exit");
+            System.out.println("5. Replenish Cash");
+            System.out.println("6. Exit");
 
             System.out.print("Select an action: ");
             int technicianChoice = scanner.nextInt();
 
             switch (technicianChoice) {
                 case 1:
-                    System.out.print("Enter amount to replenish ATM with: ");
-                    double replenishAmount = scanner.nextDouble();
-                    replenishCash(replenishAmount);
+                    refillInk();
+                    requiresInkMaintenance = false;
+                    InkQuantityUsed = 0;
                     break;
                 case 2:
-                    refillInkOrPaper();
-                    requiresMaintenance = false;
-                    transactionCount = 0;
+                    refillPaper();
+                    requiresPaperMaintenance = false;
+                    PaperQuantityUsed = 0;
                     break;
                 case 3:
                     upgradeSystem();
@@ -146,6 +168,11 @@ public class ATMSystem {
                 case 5:
                     System.out.println("Exiting maintenance mode.");
                     technicianExit = true;
+                    break;
+                case 6:
+                    System.out.print("Enter amount to replenish ATM with: ");
+                    double replenishAmount = scanner.nextDouble();
+                    replenishCash(replenishAmount);
                     break;
                 default:
                     System.out.println("Invalid choice. Try again.");
@@ -163,14 +190,21 @@ public class ATMSystem {
         } else {
             customer.getAccount().withdraw(amount);
             atmCashBalance -= amount;
-            transactionCount++;
+            PaperQuantityUsed++;
+            InkQuantityUsed+=5;
 
             System.out.println("Withdrawn: " + amount + " | ATM cash balance: " + atmCashBalance);
+            System.out.println("Ink Used Per Transaction : " + 5 + " | Remaining Ink " + (InkQuantity_LIMIT-InkQuantityUsed) + " ml");
+            System.out.println("Paper Used Per Transaction : " + 1 + " | Remaining Papers " + (PaperQuantity_LIMIT-PaperQuantityUsed));
 
             // Check if transaction limit is reached
-            if (transactionCount >= TRANSACTION_LIMIT) {
-                requiresMaintenance = true;
-                System.out.println("ATM maintenance Required!!, Technician have to service the ATM machine.");
+            if (InkQuantityUsed >= InkQuantity_LIMIT) {
+                requiresInkMaintenance = true;
+                System.out.println("Maintenance required! Technician must refill Ink before further transactions.");
+            }
+            if (PaperQuantityUsed >= PaperQuantity_LIMIT) {
+                requiresPaperMaintenance = true;
+                System.out.println("Maintenance required! Technician must refill Paper before further transactions.");
             }
         }
     }
@@ -178,14 +212,21 @@ public class ATMSystem {
     public void showDepositScreen(Customer customer, double amount) {
         customer.getAccount().deposit(amount);
         atmCashBalance += amount;
-        transactionCount++;
+        PaperQuantityUsed++;
+        InkQuantityUsed+=5;
 
         System.out.println("Deposited: " + amount + " | ATM cash balance: " + atmCashBalance);
+        System.out.println("Ink Used Per Transaction : " + 5 + " | Remaining Ink " + (InkQuantity_LIMIT-InkQuantityUsed) + " ml");
+        System.out.println("Paper Used Per Transaction : " + 1 + " | Remaining Papers " + (PaperQuantity_LIMIT-PaperQuantityUsed));
 
         // Check if transaction limit is reached
-        if (transactionCount >= TRANSACTION_LIMIT) {
-            requiresMaintenance = true;
-            System.out.println("ATM maintenance Required!!, Technician have to service the ATM machine.");
+        if (InkQuantityUsed >= InkQuantity_LIMIT) {
+            requiresInkMaintenance = true;
+            System.out.println("Maintenance required! Technician must refill Ink before further transactions.");
+        }
+        if (PaperQuantityUsed >= PaperQuantity_LIMIT) {
+            requiresPaperMaintenance = true;
+            System.out.println("Maintenance required! Technician must refill Paper before further transactions.");
         }
     }
 
@@ -193,11 +234,15 @@ public class ATMSystem {
         atmCashBalance += amount;
         System.out.println("ATM replenished with " + amount + " cash. Current ATM cash balance: " + atmCashBalance);
     }
-
-    public void refillInkOrPaper() {
-        System.out.println("Refilled ATM with ink and printer paper.");
-        requiresMaintenance = false; // Reset maintenance flag
-        transactionCount = 0; // Reset transaction count
+    public void refillInk() {
+        System.out.println("Refilled ATM with ink");
+        requiresInkMaintenance = false; // Reset maintenance flag
+        InkQuantityUsed = 0; // Reset transaction count
+    }
+    public void refillPaper() {
+        System.out.println("Refilled ATM with printer paper.");
+        requiresPaperMaintenance = false; // Reset maintenance flag
+        PaperQuantityUsed = 0; // Reset transaction count
     }
 
     public void upgradeSystem() {
