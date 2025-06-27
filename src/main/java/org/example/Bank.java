@@ -7,9 +7,9 @@ public class Bank {
         this.bankName = bankName;
     }
 
-    public Account createAccount(Customer customer) {
-        return new Account(customer);
-    }
+//    public Account createAccount(Customer customer) {
+//        return new Account(customer);
+//    }
 
     public double getAccountBalance(Account account) {
         return account.getBalance();
@@ -18,4 +18,6 @@ public class Bank {
     public String getBankName() {
         return bankName;
     }
+
+
 }
