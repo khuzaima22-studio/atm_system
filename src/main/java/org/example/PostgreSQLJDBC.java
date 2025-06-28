@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class PostgreSQLJDBC {
     private final String url = "jdbc:postgresql://localhost:5432/Atm_system";
     private final String user = "postgres";
-    private final String password = "12345678";
+    private final String password = "Mughal@19!";
 
     public Connection getConnection() {
         try {

@@ -43,7 +43,7 @@ public class ATMSystem {
 
 
     public ATMSystem() {
-        atmCashBalance = 25000.0;
+        atmCashBalance = 1000000.0;
         this.bank = new Bank("MyBank");
         PaperQuantityUsed = 0;
         InkQuantityUsed = 0;
@@ -176,7 +176,7 @@ public class ATMSystem {
     }
 
     public void createAccount(Scanner scanner) {
-        System.out.println("Please Choose an option to continue\n 1) Create Account as Customer \n 2) Create Account as Technician");
+        System.out.println("Please Choose an option to continue\n 1) Create Account as Customer \n 2) Technician");
         int choice = scanner.nextInt();
         boolean exit = false;
         while (!exit) {
@@ -403,15 +403,6 @@ public class ATMSystem {
             System.out.println("Ink Used Per Transaction : " + 5 + " | Remaining Ink " + (InkQuantity_LIMIT - InkQuantityUsed) + " ml");
             System.out.println("Paper Used Per Transaction : " + 1 + " | Remaining Papers " + (PaperQuantity_LIMIT - PaperQuantityUsed));
 
-            // Check if transaction limit is reached
-//            if (InkQuantityUsed >= InkQuantity_LIMIT) {
-//                requiresInkMaintenance = true;
-//                System.out.println("Maintenance required! Technician must refill Ink before further transactions.");
-//            }
-//            if (PaperQuantityUsed >= PaperQuantity_LIMIT) {
-//                requiresPaperMaintenance = true;
-//                System.out.println("Maintenance required! Technician must refill Paper before further transactions.");
-//            }
         }
     }
 
