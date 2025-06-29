@@ -46,7 +46,7 @@ public class PostgreSQLJDBC {
                 conn.createStatement().executeUpdate(createUserTable);
                 conn.createStatement().executeUpdate(createAccountTable);
                 conn.createStatement().executeUpdate(createHistoryTable);
-                System.out.println("Tables initialized.");
+                //System.out.println("Database tables set up successfully.");
             }
         } catch (SQLException e) {
             System.out.println("Failed to create tables.");
