@@ -10,8 +10,8 @@ public class ATMSystem {
     private Bank bank;
     public static int InkQuantityUsed;
     public static int PaperQuantityUsed;
-    private static final int InkQuantity_LIMIT = 20;
-    static final int PaperQuantity_LIMIT = 6;
+    private static final int InkQuantity_LIMIT = 50;
+    static final int PaperQuantity_LIMIT = 50;
     public static boolean requiresInkMaintenance;
     public static boolean requiresPaperMaintenance;
     private PostgreSQLJDBC db;
@@ -52,6 +52,27 @@ public class ATMSystem {
         db = new PostgreSQLJDBC();
         db.initializeTables();
         conn = db.getConnection();
+        initializePaperAndInkAndCashUsed();
+    }
+
+    public void initializePaperAndInkAndCashUsed()
+    {
+        String query = "SELECT ink_amount_used, paper_amount_used, atmCashBalance, last_updated FROM atm_maintenance WHERE id = 1;";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                InkQuantityUsed = rs.getInt("ink_amount_used");
+                PaperQuantityUsed = rs.getInt("paper_amount_used");
+                atmCashBalance = rs.getDouble("atmCashBalance");
+            } else {
+                System.out.println("No maintenance record found.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error fetching maintenance usage: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
@@ -318,12 +339,12 @@ public class ATMSystem {
 
             switch (technicianChoice) {
                 case 1:
-                    technician.refillInk();
+                    technician.refillInk(conn);
                     requiresInkMaintenance = false;
                     InkQuantityUsed = 0;
                     break;
                 case 2:
-                    technician.refillPaper();
+                    technician.refillPaper(conn);
                     requiresPaperMaintenance = false;
                     PaperQuantityUsed = 0;
                     break;
@@ -336,7 +357,7 @@ public class ATMSystem {
                 case 5:
                     System.out.print("Enter amount to replenish ATM with: ");
                     double replenishAmount = scanner.nextDouble();
-                    technician.replenishCash(replenishAmount);
+                    technician.replenishCash(replenishAmount,conn);
                     break;
                 case 6:
                     System.out.println("Exiting maintenance mode.");

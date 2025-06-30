@@ -46,10 +46,16 @@ public class Account {
         if (conn != null) {
             String updateSql = "UPDATE account SET balance = ? WHERE userid = ?";
             String historySql = "INSERT INTO user_history (user_id, transaction_type, amount, description) VALUES (?, ?, ?, ?)";
-
+            String updateMaintenance = "UPDATE atm_maintenance " +
+                    "SET ink_amount_used = ink_amount_used + 5, " +
+                    "    paper_amount_used = paper_amount_used + 1, " +
+                    "    atmCashBalance = atmCashBalance + ?, " +
+                    "    last_updated = NOW() " +
+                    "WHERE id = 1;";
             try (
                     PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-                    PreparedStatement historyStmt = conn.prepareStatement(historySql)
+                    PreparedStatement historyStmt = conn.prepareStatement(historySql);
+                    PreparedStatement maintenanceStmt = conn.prepareStatement(updateMaintenance)
             ) {
                 // Update account balance
                 updateStmt.setDouble(1, balance);
@@ -57,6 +63,9 @@ public class Account {
                 int rows = updateStmt.executeUpdate();
 
                 if (rows > 0) {
+//                    update maintenance table
+                    maintenanceStmt.setDouble(1,amount);
+                    maintenanceStmt.executeUpdate();
                     // Insert transaction history
                     historyStmt.setInt(1, userId);
                     historyStmt.setString(2, "deposit");
@@ -103,10 +112,16 @@ public class Account {
         if (conn != null) {
             String updateSql = "UPDATE account SET balance = ? WHERE userid = ?";
             String historySql = "INSERT INTO user_history (user_id, transaction_type, amount, description) VALUES (?, ?, ?, ?)";
-
+            String updateMaintenance = "UPDATE atm_maintenance " +
+                    "SET ink_amount_used = ink_amount_used + 5, " +
+                    "    paper_amount_used = paper_amount_used + 1, " +
+                    "    atmCashBalance = atmCashBalance - ?, " +
+                    "    last_updated = NOW() " +
+                    "WHERE id = 1;";
             try (
                     PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-                    PreparedStatement historyStmt = conn.prepareStatement(historySql)
+                    PreparedStatement historyStmt = conn.prepareStatement(historySql);
+                    PreparedStatement maintenanceStmt = conn.prepareStatement(updateMaintenance)
             ) {
                 // Update the account balance
                 updateStmt.setDouble(1, balance);
@@ -114,6 +129,8 @@ public class Account {
                 int rows = updateStmt.executeUpdate();
 
                 if (rows > 0) {
+                    maintenanceStmt.setDouble(1,amount);
+                    maintenanceStmt.executeUpdate();
                     // Insert into account_history
                     historyStmt.setInt(1, userId);
                     historyStmt.setString(2, "withdrawal");

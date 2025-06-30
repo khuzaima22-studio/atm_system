@@ -1,5 +1,9 @@
 package org.example;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import static org.example.ATMSystem.*;
 
 public class ATMTechnician {
@@ -44,25 +48,67 @@ public class ATMTechnician {
     //    public Account getAccount() {
 //        return
 //    }
-    public void replenishCash(double amount) {
+    public void replenishCash(double amount, Connection conn) {
         if (amount <= 0) {
             System.out.println("Amount should be greater than 0");
             return;
         }
         atmCashBalance += amount;
+        String updateQuery = "UPDATE atm_maintenance " +
+                "SET atmCashBalance = ?, " +
+                "    last_updated = NOW() " +
+                "WHERE id = 1;";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+            pstmt.setDouble(1, atmCashBalance); // this is the new balance
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("atmCashBalance updated to " + amount);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error updating atmCashBalance: " + e.getMessage());
+        }
         System.out.println("ATM replenished with " + amount + " cash. Current ATM cash balance: " + atmCashBalance);
     }
 
-    public void refillInk() {
+    public void refillInk(Connection conn) {
         System.out.println("Refilled ATM with ink");
         requiresInkMaintenance = false; // Reset maintenance flag
         InkQuantityUsed = 0; // Reset transaction count
+        String updateMaintenance = "UPDATE atm_maintenance " +
+                "SET ink_amount_used = 0, " +
+                "    last_updated = NOW() " +
+                "WHERE id = 1;";
+        try (PreparedStatement pstmt = conn.prepareStatement(updateMaintenance)) {
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("ink refilled.");
+            } else {
+                System.out.println("No row found to update.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error updating maintenance usage: " + e.getMessage());
+        }
     }
 
-    public void refillPaper() {
+    public void refillPaper(Connection conn) {
         System.out.println("Refilled ATM with printer paper.");
         requiresPaperMaintenance = false; // Reset maintenance flag
         PaperQuantityUsed = 0; // Reset transaction count
+        String updateMaintenance = "UPDATE atm_maintenance " +
+                "SET paper_amount_used = 0, " +
+                "    last_updated = NOW() " +
+                "WHERE id = 1;";
+        try (PreparedStatement pstmt = conn.prepareStatement(updateMaintenance)) {
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Paper Refilled");
+            } else {
+                System.out.println("No row found to update.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error updating maintenance usage: " + e.getMessage());
+        }
     }
 
     public void upgradeSystem() {

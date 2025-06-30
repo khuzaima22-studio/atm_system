@@ -130,7 +130,7 @@ class ATMSystemIntegrationTest {
         ATMSystem.requiresPaperMaintenance = true;
         ATMTechnician technician = new ATMTechnician(1, "Tech", "technician", 9999);
         atmSystem.setTechnician(technician);
-        atmSystem.getTechnician().refillPaper();
+        atmSystem.getTechnician().refillPaper(testConnection);
         assertFalse(ATMSystem.requiresPaperMaintenance);
         assertEquals(0, ATMSystem.PaperQuantityUsed);
         restoreOutput();
@@ -146,7 +146,7 @@ class ATMSystemIntegrationTest {
         double replenishAmount = 5000.0;
         ATMTechnician technician = new ATMTechnician(1, "Tech", "technician", 9999);
         atmSystem.setTechnician(technician);
-        atmSystem.getTechnician().replenishCash(replenishAmount);
+        atmSystem.getTechnician().replenishCash(replenishAmount,testConnection);
         assertEquals(initialCash + replenishAmount, atmSystem.getAtmCashBalance(), 0.01);
         restoreOutput();
         System.out.println("Test passed successfully, Technician replenishes ATM cash correctly");

@@ -2,12 +2,13 @@ package org.example;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class PostgreSQLJDBC {
     private final String url = "jdbc:postgresql://localhost:5432/Atm_system";
     private final String user = "postgres";
-    private final String password = "Mughal@19!";
+    private final String password = "12345678";
 
     public Connection getConnection() {
         try {
@@ -40,12 +41,21 @@ public class PostgreSQLJDBC {
                 "description TEXT," +
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ");";
+        String createMaintenanceTable = "CREATE TABLE IF NOT EXISTS atm_maintenance (" +
+                "id SERIAL PRIMARY KEY," +
+                "ink_amount_used INTEGER DEFAULT 0," +
+                "paper_amount_used INTEGER DEFAULT 0,"+
+                "atmCashBalance DOUBLE PRECISION DEFAULT 0,"+
+                "last_updated TIMESTAMP DEFAULT NOW()"+
+                ");";
 
         try (Connection conn = getConnection()) {
             if (conn != null) {
                 conn.createStatement().executeUpdate(createUserTable);
                 conn.createStatement().executeUpdate(createAccountTable);
                 conn.createStatement().executeUpdate(createHistoryTable);
+                conn.createStatement().executeUpdate(createMaintenanceTable);
+                initializeMaintenanceTable(conn);
                 //System.out.println("Database tables set up successfully.");
             }
         } catch (SQLException e) {
@@ -54,5 +64,19 @@ public class PostgreSQLJDBC {
         }
     }
 
+    public void initializeMaintenanceTable(Connection conn)
+    {
+        String insertQuery = "INSERT INTO atm_maintenance (ink_amount_used, paper_amount_used, atmCashBalance) " +
+                "SELECT 0, 0, 1000000.0 WHERE NOT EXISTS (SELECT 1 FROM atm_maintenance);";
+
+        try (PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Initial maintenance row inserted.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error inserting initial maintenance row: " + e.getMessage());
+        }
+    }
 
 }
