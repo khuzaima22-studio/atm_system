@@ -1,7 +1,7 @@
 package org.example;
 
 import org.junit.jupiter.api.*;
-
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.OutputStream;
 import java.sql.*;
@@ -108,28 +108,39 @@ class ATMSystemIntegrationTest {
     @Order(2)
     @DisplayName("Withdrawal fails if balance is insufficient")
     void testWithdrawalInsufficientFunds() {
-        // Reset state before test
-        ATMSystem.InkQuantityUsed = 0;
-        ATMSystem.PaperQuantityUsed = 0;
-        ATMSystem.requiresInkMaintenance = false;
-        ATMSystem.requiresPaperMaintenance = false;
-        ATMSystem.atmCashBalance = 1_000_000.0;
-        account.setBalance(1000.0);  // reset account balance
+        // Save original System.out
+        PrintStream original = System.out;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream testOut = new PrintStream(baos);
 
-        double withdrawAmount = account.getBalance() + 1000; // More than balance
+        // Redirect System.out to suppress internal prints
+        System.setOut(testOut);
 
-        // Call only once
-        atmSystem.showWithdrawScreen(withdrawAmount);
+        try {
+            // Reset state before test
+            ATMSystem.InkQuantityUsed = 0;
+            ATMSystem.PaperQuantityUsed = 0;
+            ATMSystem.requiresInkMaintenance = false;
+            ATMSystem.requiresPaperMaintenance = false;
+            ATMSystem.atmCashBalance = 1_000_000.0;
+            account.setBalance(1000.0);  // reset account balance
 
-        // Because withdraw fails inside showWithdrawScreen, this should be false
-        // But do NOT call withdraw again here
+            double withdrawAmount = account.getBalance() + 1000; // More than balance
 
-        // Confirm no ink or paper used
-        assertEquals(0, ATMSystem.PaperQuantityUsed, "Paper used should be 0 when withdrawal fails");
-        assertEquals(0, ATMSystem.InkQuantityUsed, "Ink used should be 0 when withdrawal fails");
+            atmSystem.showWithdrawScreen(withdrawAmount);
 
-        // Confirm balance unchanged
-        assertEquals(1000.0, account.getBalance(), 0.01);
+            // Assertions
+            assertEquals(0, ATMSystem.PaperQuantityUsed, "Paper used should be 0 when withdrawal fails");
+            assertEquals(0, ATMSystem.InkQuantityUsed, "Ink used should be 0 when withdrawal fails");
+            assertEquals(1000.0, account.getBalance(), 0.01);
+
+        } finally {
+            // Restore original System.out
+            System.setOut(original);
+        }
+
+        // Print your custom success message AFTER restoring System.out
+        System.out.println("Test passed successfully: Withdrawal fails if balance is insufficient");
     }
 
     @Test
@@ -141,7 +152,7 @@ class ATMSystemIntegrationTest {
         double replenishAmount = 5000.0;
         ATMTechnician technician = new ATMTechnician(1, "Tech", "technician", 9999);
         atmSystem.setTechnician(technician);
-        atmSystem.getTechnician().replenishCash(replenishAmount,testConnection);
+        atmSystem.getTechnician().replenishCash(replenishAmount, testConnection);
         assertEquals(initialCash + replenishAmount, atmSystem.getAtmCashBalance(), 0.01);
         restoreOutput();
         System.out.println("Test passed successfully, Technician replenishes ATM cash correctly");
