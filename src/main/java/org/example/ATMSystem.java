@@ -10,7 +10,7 @@ public class ATMSystem {
     private Bank bank;
     public static int InkQuantityUsed;
     public static int PaperQuantityUsed;
-    private static final int InkQuantity_LIMIT = 50;
+    private static final int InkQuantity_LIMIT = 10;
     static final int PaperQuantity_LIMIT = 50;
     public static boolean requiresInkMaintenance;
     public static boolean requiresPaperMaintenance;
@@ -99,17 +99,7 @@ public class ATMSystem {
         boolean exit = false;
         while (!exit) {
             System.out.println("Welcome to the ATM System of " + bank.getBankName());
-            if(InkQuantityUsed>=InkQuantity_LIMIT)
-            {
-                System.out.println("Maintenance required! Technician must refill ink. Please Try again later!");
-                break;
-            }
-            else if(PaperQuantityUsed>=PaperQuantity_LIMIT)
-            {
-                System.out.println("Maintenance required! Technician must refill paper. Please Try again later!");
-                break;
-            }
-            else {
+
                 System.out.println("Please Choose an option to continue\n 1) Create New Account \n 2) Access Existing Account \n 3) Exit");
 
                 int choice = scanner.nextInt();
@@ -129,7 +119,7 @@ public class ATMSystem {
 
                 }
             }
-        }
+
     }
 
     public void showPinEntryScreen(Scanner scanner) {
@@ -145,15 +135,16 @@ public class ATMSystem {
         role = getDataFromDB(enteredPin, userNo, role);
 
 
+
         if (role.equals("technician")) {
             System.out.println("Pin validated successfully as ATM Technician!");
             showTechnicianMenu(scanner);
         } else if (role.equals("customer")) {
             System.out.println("Pin validated successfully as Customer!");
-            if (requiresInkMaintenance) {
+            if (InkQuantityUsed>=InkQuantity_LIMIT) {
                 System.out.println("Maintenance required! Technician must refill ink. Please Try again later!");
 //                atmSystem.showTechnicianMenu(atmTechnician, scanner);
-            } else if (requiresPaperMaintenance) {
+            } else if (PaperQuantityUsed>=PaperQuantity_LIMIT) {
                 System.out.println("Maintenance required! Technician must refill paper. Please Try again later!");
 //                atmSystem.showTechnicianMenu(atmTechnician, scanner);
             } else {
