@@ -99,23 +99,35 @@ public class ATMSystem {
         boolean exit = false;
         while (!exit) {
             System.out.println("Welcome to the ATM System of " + bank.getBankName());
-            System.out.println("Please Choose an option to continue\n 1) Create New Account \n 2) Access Existing Account \n 3) Exit");
+            if(InkQuantityUsed>=InkQuantity_LIMIT)
+            {
+                System.out.println("Maintenance required! Technician must refill ink. Please Try again later!");
+                break;
+            }
+            else if(PaperQuantityUsed>=PaperQuantity_LIMIT)
+            {
+                System.out.println("Maintenance required! Technician must refill paper. Please Try again later!");
+                break;
+            }
+            else {
+                System.out.println("Please Choose an option to continue\n 1) Create New Account \n 2) Access Existing Account \n 3) Exit");
 
-            int choice = scanner.nextInt();
-            switch (choice) {
-                case 1:
-                    createAccount(scanner);
-                    break;
-                case 2:
-                    showPinEntryScreen(scanner);
-                    break;
-                case 3:
-                    System.out.println("Exiting...");
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Try again.");
+                int choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        createAccount(scanner);
+                        break;
+                    case 2:
+                        showPinEntryScreen(scanner);
+                        break;
+                    case 3:
+                        System.out.println("Exiting...");
+                        exit = true;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Try again.");
 
+                }
             }
         }
     }
