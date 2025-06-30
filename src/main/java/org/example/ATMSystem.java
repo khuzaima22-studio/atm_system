@@ -10,8 +10,8 @@ public class ATMSystem {
     private Bank bank;
     public static int InkQuantityUsed;
     public static int PaperQuantityUsed;
-    private static final int InkQuantity_LIMIT = 50;
-    static final int PaperQuantity_LIMIT = 50;
+    private static final int InkQuantity_LIMIT = 30;
+    static final int PaperQuantity_LIMIT = 10;
     public static boolean requiresInkMaintenance;
     public static boolean requiresPaperMaintenance;
     private PostgreSQLJDBC db;
