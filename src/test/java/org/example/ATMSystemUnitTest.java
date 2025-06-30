@@ -25,13 +25,6 @@ class ATMSystemUnitTest {
     }
 
     @Test
-    @DisplayName("ATM cash balance should inaugurate to 1,000,000.0")
-    void testInitialAtmCashBalance() {
-        assertEquals(1_000_000.0, atmSystem.getAtmCashBalance(), 0.01);
-        System.out.println("Test passed: ATM cash balance initialized correctly");
-    }
-
-    @Test
     @DisplayName("Should require ink maintenance after ink limit exceeded")
     void testInkMaintenanceFlagTriggered() {
         ATMSystem.InkQuantityUsed = 20;

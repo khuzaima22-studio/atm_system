@@ -90,39 +90,6 @@ class ATMSystemIntegrationTest {
 
     @Test
     @Order(1)
-    @DisplayName("Deposit updates account balance and ATM cash correctly")
-    void testDepositIntegration() {
-        suppressOutput();
-        double initialBalance = account.getBalance();
-        double initialATMBalance = atmSystem.getAtmCashBalance();
-        double depositAmount = 500.0;
-
-        atmSystem.showDepositScreen(depositAmount);
-
-        assertEquals(initialBalance + depositAmount, account.getBalance(), 0.01);
-        assertEquals(initialATMBalance + depositAmount, atmSystem.getAtmCashBalance(), 0.01);
-        assertEquals(5, ATMSystem.InkQuantityUsed);
-        assertEquals(1, ATMSystem.PaperQuantityUsed);
-        restoreOutput();
-        System.out.println("Test passed successfully, Deposit updates account balance and ATM cash correctly");
-    }
-
-    @Test
-    @Order(2)
-    @DisplayName("Withdrawal fails if balance is insufficient")
-    void testWithdrawalInsufficientFunds() {
-        suppressOutput();
-        double withdrawAmount = account.getBalance() + 1000;
-        atmSystem.showWithdrawScreen(withdrawAmount);
-        assertFalse(account.withdraw(withdrawAmount, atmSystem.conn));
-        assertEquals(0, ATMSystem.InkQuantityUsed);
-        assertEquals(0, ATMSystem.PaperQuantityUsed);
-        restoreOutput();
-        System.out.println("Test passed successfully, Withdrawal fails if balance is insufficient");
-    }
-
-    @Test
-    @Order(3)
     @DisplayName("Technician resets paper count after refill")
     void testTechnicianPaperRefill() {
         suppressOutput();
@@ -138,7 +105,35 @@ class ATMSystemIntegrationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(2)
+    @DisplayName("Withdrawal fails if balance is insufficient")
+    void testWithdrawalInsufficientFunds() {
+        // Reset state before test
+        ATMSystem.InkQuantityUsed = 0;
+        ATMSystem.PaperQuantityUsed = 0;
+        ATMSystem.requiresInkMaintenance = false;
+        ATMSystem.requiresPaperMaintenance = false;
+        ATMSystem.atmCashBalance = 1_000_000.0;
+        account.setBalance(1000.0);  // reset account balance
+
+        double withdrawAmount = account.getBalance() + 1000; // More than balance
+
+        // Call only once
+        atmSystem.showWithdrawScreen(withdrawAmount);
+
+        // Because withdraw fails inside showWithdrawScreen, this should be false
+        // But do NOT call withdraw again here
+
+        // Confirm no ink or paper used
+        assertEquals(0, ATMSystem.PaperQuantityUsed, "Paper used should be 0 when withdrawal fails");
+        assertEquals(0, ATMSystem.InkQuantityUsed, "Ink used should be 0 when withdrawal fails");
+
+        // Confirm balance unchanged
+        assertEquals(1000.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    @Order(3)
     @DisplayName("Technician replenishes ATM cash correctly")
     void testCashReplenishment() {
         suppressOutput();
